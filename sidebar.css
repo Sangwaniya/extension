@@ -1,0 +1,59 @@
+#extension-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background-color: white;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+    z-index: 9999;
+    transition: transform 0.3s ease-in-out;
+}
+
+#extension-sidebar.collapsed {
+    transform: translateX(290px);
+}
+
+#sidebar-toggle {
+    position: absolute;
+    left: -30px;
+    top: 10px;
+    width: 30px;
+    height: 30px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#sidebar-content {
+    padding: 10px;
+}
+
+button, select, input {
+    width: 100%;
+    margin: 5px 0;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+#recordButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#recordButton:hover {
+    opacity: 0.9;
+}
+
+#responseArea {
+    height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 5px;
+    margin-top: 10px;
+    background-color: #f9f9f9;
+}
