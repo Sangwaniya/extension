@@ -4,6 +4,9 @@ let audioChunks = [];
 let isAutoMode = false;
 let targetSpeaker = '';
 
+const API_KEY = ''; // Add your API key here
+const API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+
 chrome.action.onClicked.addListener((tab) => {
   chrome.windows.create({
     url: chrome.runtime.getURL("interface.html"),
