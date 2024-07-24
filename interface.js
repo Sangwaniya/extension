@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateRecordButton() {
-        recordButton.textContent = isRecording ? 'Stop Recording' : 'Start Recording';
+        recordButton.textContent = isRecording ? 'Stop and send Recording' : 'Start Recording';
         recordButton.style.backgroundColor = isRecording ? '#ff4444' : '#4CAF50';
     }
 

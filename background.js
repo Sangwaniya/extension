@@ -1,11 +1,11 @@
+const API_KEY = ''; // Add your API key here
+const API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+
 let audioStream = null;
 let mediaRecorder = null;
 let audioChunks = [];
 let isAutoMode = false;
 let targetSpeaker = '';
-
-const API_KEY = ''; // Add your API key here
-const API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
 
 chrome.action.onClicked.addListener((tab) => {
   chrome.windows.create({
@@ -17,47 +17,44 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  switch (message.type) {
-    case 'startRecording':
-      startRecording(message.mode, message.speaker);
-      break;
-    case 'stopRecording':
-      stopRecording();
-      break;
-    case 'setMode':
-      isAutoMode = message.mode === 'auto';
-      break;
-    case 'setSpeaker':
-      targetSpeaker = message.speaker;
-      break;
+  if (message.type === 'startRecording') {
+    startTabCaptureRecording(message.mode, message.speaker);
+  } else if (message.type === 'stopRecording') {
+    stopRecording();
+  } else if (message.type === 'setMode') {
+    isAutoMode = message.mode === 'auto';
+  } else if (message.type === 'setSpeaker') {
+    targetSpeaker = message.speaker;
   }
 });
 
-async function startRecording(mode, speaker) {
+function startTabCaptureRecording(mode, speaker) {
   try {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error('getUserMedia is not supported on this browser');
-    }
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    audioStream = stream;
-    mediaRecorder = new MediaRecorder(audioStream);
+    chrome.tabCapture.capture({ audio: true, video: false }, (stream) => {
+      if (chrome.runtime.lastError || !stream) {
+        console.error('Error starting tab capture:', chrome.runtime.lastError);
+        return;
+      }
+      audioStream = stream;
+      mediaRecorder = new MediaRecorder(audioStream);
 
-    mediaRecorder.ondataavailable = (event) => {
-      audioChunks.push(event.data);
-    };
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunks.push(event.data);
+      };
 
-    mediaRecorder.onstop = processAudioData;
+      mediaRecorder.onstop = processAudioData;
 
-    if (mode === 'auto') {
-      setupVoiceActivityDetection(audioStream);
-    } else {
-      mediaRecorder.start();
-    }
+      if (mode === 'auto') {
+        setupVoiceActivityDetection(audioStream);
+      } else {
+        mediaRecorder.start();
+      }
 
-    updateRecordingState(true);
+      updateRecordingState(true);
+    });
   } catch (error) {
-    console.error('Error starting recording:', error);
-    chrome.runtime.sendMessage({ type: 'error', message: 'Error starting recording: ' + error.message });
+    console.error('Error starting tab capture recording:', error);
+    chrome.runtime.sendMessage({ type: 'error', message: 'Error starting tab capture recording: ' + error.message });
   }
 }
 
