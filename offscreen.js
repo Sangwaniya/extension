@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai";
 import axios from 'axios';
 
-const genAI = new GoogleGenerativeAI('AIzaSyDR4_6obeZRCEf1j0B7bVzJmlRqIict2Aw');
+const genAI = new GoogleGenerativeAI('Your gemini api key');
 const model = genAI.getGenerativeModel({
   model: "gemini-1.5-flash",
 });
