@@ -1,56 +1,42 @@
-let isRecording = false;
-let isAutoMode = false;
-
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     const recordButton = document.getElementById('recordButton');
     const modeSwitch = document.getElementById('modeSwitch');
-    const speakerInput = document.getElementById('speakerInput');
     const responseArea = document.getElementById('responseArea');
-
-    recordButton.addEventListener('click', toggleRecording);
-    modeSwitch.addEventListener('change', toggleMode);
-    speakerInput.addEventListener('input', updateSpeaker);
-
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-        if (message.type === 'updateResponse') {
-            responseArea.textContent += message.text + '\n';
-        } else if (message.type === 'updateRecordingState') {
-            isRecording = message.isRecording;
-            updateRecordButton();
-        }
-    });
-
-    function toggleRecording() {
-        isRecording = !isRecording;
-        updateRecordButton();
-        chrome.runtime.sendMessage({ 
-            type: isRecording ? 'startRecording' : 'stopRecording',
-            mode: isAutoMode ? 'auto' : 'manual',
-            speaker: speakerInput.value
+  
+    let isRecording = false;
+  
+    function updateButton() {
+      recordButton.textContent = isRecording ? 'Stop Recording' : 'Start Recording';
+    }
+  
+    function handleMessage(message) {
+      if (message.type === 'updateRecordingState') {
+        isRecording = message.isRecording;
+        updateButton();
+      } else if (message.type === 'updateResponse') {
+        const newResponse = document.createElement('div');
+        newResponse.textContent = message.text;
+        responseArea.appendChild(newResponse);
+      }
+    }
+  
+    recordButton.addEventListener('click', () => {
+      if (isRecording) {
+        chrome.runtime.sendMessage({ type: 'stopRecording' });
+      } else {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          chrome.runtime.sendMessage({ type: 'startRecording', tabId: tabs[0].id });
         });
-    }
-
-    function updateRecordButton() {
-        recordButton.textContent = isRecording ? 'Stop and send Recording' : 'Start Recording';
-        recordButton.style.backgroundColor = isRecording ? '#ff4444' : '#4CAF50';
-    }
-
-    function toggleMode() {
-        isAutoMode = modeSwitch.value === 'auto';
-        chrome.runtime.sendMessage({ type: 'setMode', mode: isAutoMode ? 'auto' : 'manual' });
-    }
-
-    function updateSpeaker() {
-        chrome.runtime.sendMessage({ type: 'setSpeaker', speaker: speakerInput.value });
-    }
-
-    // Initialize the UI
-    updateRecordButton();
-});
-
-// Add global shortcut listener
-document.addEventListener('keydown', (event) => {
-    if (event.shiftKey && event.key === 'A') {
-        document.getElementById('recordButton').click();
-    }
-});
+      }
+    });
+  
+    modeSwitch.addEventListener('change', (event) => {
+      chrome.runtime.sendMessage({ type: 'setMode', mode: event.target.value });
+    });
+  
+    chrome.runtime.onMessage.addListener(handleMessage);
+  
+    updateButton();
+    modeSwitch.value = 'manual';
+  });
+  

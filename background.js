@@ -5,7 +5,6 @@ let audioStream = null;
 let mediaRecorder = null;
 let audioChunks = [];
 let isAutoMode = false;
-let targetSpeaker = '';
 
 chrome.action.onClicked.addListener((tab) => {
   chrome.windows.create({
@@ -16,19 +15,17 @@ chrome.action.onClicked.addListener((tab) => {
   });
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message) => {
   if (message.type === 'startRecording') {
-    startTabCaptureRecording(message.mode, message.speaker);
+    startTabCaptureRecording(message.mode);
   } else if (message.type === 'stopRecording') {
     stopRecording();
   } else if (message.type === 'setMode') {
     isAutoMode = message.mode === 'auto';
-  } else if (message.type === 'setSpeaker') {
-    targetSpeaker = message.speaker;
   }
 });
 
-function startTabCaptureRecording(mode, speaker) {
+function startTabCaptureRecording(mode) {
   try {
     chrome.tabCapture.capture({ audio: true, video: false }, (stream) => {
       if (chrome.runtime.lastError || !stream) {
@@ -41,15 +38,19 @@ function startTabCaptureRecording(mode, speaker) {
       mediaRecorder.ondataavailable = (event) => {
         audioChunks.push(event.data);
       };
+      console.log('Tab capture recording  completed, mode:', mode, "data:", audioChunks);
+
 
       mediaRecorder.onstop = processAudioData;
 
-      if (mode === 'auto') {
-        setupVoiceActivityDetection(audioStream);
-      } else {
-        mediaRecorder.start();
-      }
 
+
+      // if (mode === 'auto') {
+      //   setupVoiceActivityDetection(audioStream);
+      // } else {
+      //   mediaRecorder.start();
+      // }
+      
       updateRecordingState(true);
     });
   } catch (error) {
@@ -66,6 +67,7 @@ function stopRecording() {
     audioStream.getTracks().forEach(track => track.stop());
   }
   updateRecordingState(false);
+  console.log('Tab capture recording stopped');
 }
 
 function updateRecordingState(isRecording) {

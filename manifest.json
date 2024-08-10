@@ -1,24 +1,15 @@
 {
-  "name": "Audio Recorder",
+  "name": "Tab Capture - Audio Recorder",
+  "description": "Records the current tab audio in an offscreen document.",
   "version": "1.0",
   "manifest_version": 3,
-  "permissions": [
-    "activeTab",
-    "tabs",
-    "tabCapture"
-  ],
-  "background": {
-    "service_worker": "background.js"
-  },
+  "minimum_chrome_version": "116",
   "action": {
     "default_popup": "interface.html",
-    "default_icon": {
-      "16": "images/icon16.png",
-      "48": "images/icon48.png",
-      "128": "images/icon128.png"
-    }
+    "default_icon": "icons/not-recording.png"
   },
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self';"
-  }
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "permissions": ["tabCapture", "offscreen"]
 }
