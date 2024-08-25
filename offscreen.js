@@ -1,7 +1,8 @@
 import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai";
-import axios from 'axios';
+// import axios from './node_modules/axios/dist/axios.min.js';
+// import axios from 'https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js';
 
-const genAI = new GoogleGenerativeAI('AIzaSyDR4_6obeZRCEf1j0B7bVzJmlRqIict2Aw');
+const genAI = new GoogleGenerativeAI('YOUR_API_KEY');
 const model = genAI.getGenerativeModel({
   model: "gemini-1.5-flash",
 });
